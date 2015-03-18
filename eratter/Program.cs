@@ -16,9 +16,9 @@ namespace eratter
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Form form = new Form();
-            form.Text = "TEST";
-            Application.Run(form);
+
+            Console console = new Console();
+            Application.Run(console);
         }
     }
 }
