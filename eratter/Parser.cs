@@ -4,130 +4,210 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using eratter.Tokens;
 
 namespace eratter
 {
     class Parser
     {
         // 正規表現定義
-        private static readonly string DimStart          = @"((?<DimStart>#dim(|s|f))\s)";
-        private static readonly string DimClassStart     = @"((?<DimClassStart>#dimc)\s)";
-        private static readonly string DimGlobal         = @"((?<DimGlobal>global)\s)";
-        private static readonly string DimSaveData       = @"((?<DimSaveData>savedata)\s)";
-        private static readonly string DimIdentifier     = @"(?<DimIdentifier>\w+)";
-        private static readonly string DimHash           = @"((?<DimHash>array|hash)\s)";
-        private static readonly string DimNumber         = @"(?<DimNumber>[0-9]+)";
-        private static readonly string DimComma          = @"(?<DimComma>,)";
-        private static readonly string ClassStart        = @"((?<ClassStart>#class)\s)";
-        private static readonly string ClassIdentifier   = @"(?<ClassIdentifier>\w+)";
-        private static readonly string FunctionStart     = @"((?<FunctionStart>sub)\s)";
-        private static readonly string FunctionName      = @"(?<FunctionName>\w+)";
-        private static readonly string FunctionArg       = @"(?<FunctionArg>\w+)";
-        private static readonly string FunctionComma     = @"(?<FunctionComma>,)";
+        private static readonly Dictionary<string, string> patternRegexes = new Dictionary<string, string>
+        {
+            {"DimStart", @"((?<DimStart>#dim(|s|f))\s)"},
+            {"DimClassStart", @"((?<DimClassStart>#dimc)\s)"},
+            {"DimSave", @"((?<DimSave>global|savedata)\s)"},
+            {"DimIdentifier", @"(?<DimIdentifier>\w+)"},
+            {"DimHash", @"((?<DimHash>array|hash)\s)"},
+            {"DimNumber", @"(?<DimNumber>[0-9]+)"},
+            {"DimComma", @"(?<DimComma>,)"},
+            {"ClassStart", @"((?<ClassStart>#class)\s)"},
+            {"ClassIdentifier", @"(?<ClassIdentifier>\w+)"},
+            {"FunctionStart", @"((?<FunctionStart>sub)\s)"},
+            {"FunctionName", @"(?<FunctionName>\w+)"},
+            {"FunctionArg", @"(?<FunctionArg>\w+)"},
+            {"FunctionComma", @"(?<FunctionComma>,)"},
 
-        private static readonly string NextLine          = @"(?<NextLine>\\)";
-        private static readonly string Return            = @"((?<Return>return)\s)";
-        private static readonly string IfStart           = @"((?<IfStart>sif|if)\s)";
-        private static readonly string IfEnd             = @"((?<IfEnd>endif)\s)";
-        private static readonly string SelectStart       = @"((?<SelectStart>selectcase)\s)";
-        private static readonly string SelectCase        = @"((?<SelectCase>case)\s)";
-        private static readonly string SelectCaseNumber  = @"(?<SelectCaseNumber>[0-9]+)";
-        private static readonly string SelectCaseLiteral = @"(""(?<SelectCaseLiteral>.*?)(?<!\\)"")";
-        private static readonly string SelectDefault     = @"((?<SelectDefault>default)\s)";
-        private static readonly string SelectEnd         = @"((?<SelectEnd>endselect)\s)";
-        private static readonly string ForStart          = @"((?<ForStart>for)\s)";
-        private static readonly string ForEnd            = @"((?<ForEnd>next)\s)";
-        private static readonly string WhileStart        = @"((?<WhileStart>while)\s)";
-        private static readonly string WhileEnd          = @"((?<WhileEnd>wend)\s)";
-        private static readonly string DoLoopStart       = @"((?<DoLoopStart>do)\s)";
-        private static readonly string DoLoopEnd         = @"((?<DoLoopEnd>loop)\s)";
-        private static readonly string Break             = @"((?<Break>break)\s)";
-        private static readonly string Try               = @"((?<Try>try)\s)";
-        private static readonly string Catch             = @"((?<Catch>catch)\s)";
-        private static readonly string CatchEnd          = @"((?<CatchEnd>endcatch)\s)";
+            {"NextLine", @"(?<NextLine>\\)"},
+            {"Return", @"((?<Return>return)\s)"},
+            {"Sif", @"((?<Sif>sif)\s)"},
+            {"IfStart", @"((?<IfStart>if)\s)"},
+            {"IfEnd", @"((?<IfEnd>endif)\s)"},
+            {"SelectStart", @"((?<SelectStart>selectcase)\s)"},
+            {"SelectCase", @"((?<SelectCase>case)\s)"},
+            {"SelectCaseNumber", @"(?<SelectCaseNumber>[0-9]+)"},
+            {"SelectCaseLiteral", @"(""(?<SelectCaseLiteral>.*?)(?<!\\)"")"},
+            {"SelectDefault", @"((?<SelectDefault>default)\s)"},
+            {"SelectEnd", @"((?<SelectEnd>endselect)\s)"},
+            {"ForStart", @"((?<ForStart>for)\s)"},
+            {"ForEnd", @"((?<ForEnd>next)\s)"},
+            {"WhileStart", @"((?<WhileStart>while)\s)"},
+            {"WhileEnd", @"((?<WhileEnd>wend)\s)"},
+            {"DoLoopStart", @"((?<DoLoopStart>do)\s)"},
+            {"DoLoopEnd", @"((?<DoLoopEnd>loop)\s)"},
+            {"Break", @"((?<Break>break)\s)"},
+            {"Try", @"((?<Try>try)\s)"},
+            {"Catch", @"((?<Catch>catch)\s)"},
+            {"CatchEnd", @"((?<CatchEnd>endcatch)\s)"},
 
-        private static readonly string Number            = @"(?<Number>[0-9]+)";
-        private static readonly string Function          = @"(?<Function>\w+\()";
-        private static readonly string Identifier        = @"(?<Identifier>\w+)";
-        private static readonly string ExprScopeStart    = @"(?<ExprScopeStart>\()";
-        private static readonly string ExprScopeEnd      = @"(?<ExprScopeEnd>\()";
-        private static readonly string Comma             = @"(?<Comma>,)";
-        private static readonly string IndexStart        = @"(?<IndexStart>\[)";
-        private static readonly string IndexEnd          = @"(?<IndexEnd>\])";
-        private static readonly string Literal           = @"(""(?<SelectCaseLiteral>.*?)(?<!\\)"")";
-        private static readonly string RegexStart        = @"(?<RegexStart>@"")";
-        private static readonly string RegexEnd          = @"(?<RegexEnd>@"")";
-        private static readonly string PreIncrement      = @"(?<OneOpe>\+\+|\-\-)";
-        private static readonly string Asign             = @"(?<Asign>\<\<=|\>\>=|\^=|\|=|\&=|\%=|\/=|\*=|\-=|\+=|\=)";
-        private static readonly string BinOpe            = @"(?<BinOpe>==|\!=|\<=|\>=|\<<|\>>|\|\||\&\&|\||\^|\&|\>|\<|\+|\-|\*|\/|\%)";
-        private static readonly string OneOpe            = @"(?<OneOpe>\+|\-|\!)";
+            {"Number", @"(?<Number>[0-9]+)"},
+            {"Function", @"(?<Function>\w+\()"},
+            {"Identifier", @"(?<Identifier>\w+)"},
+            {"ExprStart", @"(?<ExprStart>\()"},
+            {"ExprEnd", @"(?<ExprEnd>\()"},
+            {"Comma", @"(?<Comma>,)"},
+            {"IndexStart", @"(?<IndexStart>\[)"},
+            {"IndexEnd", @"(?<IndexEnd>\])"},
+            {"Literal", @"(""(?<Literal>.*?)(?<!\\)"")"},
+            {"PreIncrement", @"(?<PreIncrement>\+\+|\-\-)"},
+            {"Asign", @"(?<Asign>\<\<=|\>\>=|\^=|\|=|\&=|\%=|\/=|\*=|\-=|\+=|\=)"},
+            {"BinOpe", @"(?<BinOpe>==|\!=|\<=|\>=|\<<|\>>|\|\||\&\&|\||\^|\&|\~|\>|\<|\+|\-|\*|\/|\%)"},
+            {"OneOpe", @"(?<OneOpe>\+|\-|\!)"},
+            {"TernaryStart", @"(?<Ternary>\?)"},
+            {"TernaryDelimiter", @"(?<TernaryDelimiter>\:)"},
 
-        private static readonly string LineComment       = @"(?<LineComment>;|\/\/)";
-        private static readonly string BlockCommentStart = @"(?<BlockCommentStart>\/\*)";
-        private static readonly string BlockCommentEnd   = @"(?<BlockCommentEnd>\*\/)";
-        private static readonly string LocalScopeStart   = @"(?<LocalScopeStart>\{)";
-        private static readonly string LocalScopeEnd     = @"(?<LocalScopeEnd>\})";
-
-        private static readonly string Pre = @"^";
-        private static readonly string Or = @"|";
+            {"LineComment", @"(?<LineComment>;|\/\/)"},
+            {"BlockCommentStart", @"(?<BlockCommentStart>\/\*)"},
+            {"BlockCommentSkip", @"(?<BlockCommentSkip>.*)"},
+            {"BlockCommentEnd", @"(?<BlockCommentEnd>\*\/)"},
+            {"LocalScopeStart", @"(?<LocalScopeStart>\{)"},
+            {"LocalScopeEnd", @"(?<LocalScopeEnd>\})"},
+        };
 
         // ネクストパターン定義
-        private static readonly string FirstPattern = Pre + DimStart + Or + DimClassStart + Or + ClassStart + Or + FunctionStart + Or +
-            LineComment + Or + BlockCommentStart + Or + BlockCommentEnd + Or + Return + Or + 
-            IfStart + Or + IfEnd + Or + SelectStart + Or + SelectCase + Or + SelectDefault + Or + SelectEnd + Or + 
-            ForStart + Or + ForEnd + Or + WhileStart + Or + WhileEnd + Or + DoLoopStart + Or + DoLoopEnd + Or + 
-            Break + Or + Try + Or + Catch + Or + CatchEnd + Or + LocalScopeStart + Or + LocalScopeEnd + Or +
-            Function + Or + Identifier + Or + PreIncrement;
+        private static readonly string[] FirstPattern = new[]
+        {
+            "DimStart", "DimClassStart", "ClassStart", "FunctionStart",
+            "LineComment", "BlockCommentStart", "BlockCommentEnd",
+            "Return", "Break",
+            "Sif", "IfStart", "IfEnd", "SelectStart", "SelectCase", "SelectDefault", "SelectEnd",
+            "ForStart", "ForEnd", "WhileStart", "WhileEnd", "DoLoopStart", "DoLoopEnd",
+            "Try", "Catch", "CatchEnd",
+            "LocalScopeStart", "LocalScopeEnd",
+            "Function", "Identifier", "PreIncrement",
+        };
 
-        private static readonly string DimStartAfter = Pre + NextLine + Or + DimGlobal + Or + DimSaveData + Or + DimIdentifier;
-        private static readonly string DimGlobalAfter = Pre + NextLine + Or + DimSaveData + Or + DimIdentifier;
-        private static readonly string DimSaveDataAfter = Pre + NextLine + Or + DimIdentifier;
-        private static readonly string DimIdentifierAfter = Pre + NextLine + Or + LineComment + Or + DimHash + Or + DimNumber;
-        private static readonly string DimHashAfter = Pre + NextLine + Or + DimNumber;
-        private static readonly string DimNumberAfter = Pre + NextLine + Or + LineComment + Or + DimCommaAfter;
-        private static readonly string DimCommaAfter = DimIdentifierAfter;
-        private static readonly string ClassStartAfter = Pre + NextLine + Or + ClassIdentifier;
-        private static readonly string ClassIdentifierAfter = Pre + NextLine + Or + LineComment + Or + ClassIdentifier;
-        private static readonly string FunctionStartAfter = Pre + NextLine + Or + FunctionName;
-        private static readonly string FunctionNameAfter = Pre + NextLine + Or + LineComment + Or + FunctionArg;
-        private static readonly string FunctionArgAfter = Pre + NextLine + Or + LineComment + Or + FunctionComma;
-        private static readonly string FunctionCommaAfter = FunctionNameAfter;
+        private static readonly string[] DimStartAfter = new[]
+        {
+            "NextLine", "DimSave", "DimIdentifier",
+        };
+        private static readonly string[] DimSaveAfter = new[]
+        {
+            "NextLine", "DimIdentifier",
+        };
+        private static readonly string[] DimIdentifierAfter = new[]
+        {
+            "NextLine", "LineComment", "DimHash", "DimNumber",
+        };
+        private static readonly string[] DimHashAfter = new[]
+        {
+            "NextLine", "DimNumber",
+        };
+        private static readonly string[] DimNumberAfter = new[]
+        {
+            "NextLine", "LineComment", "DimCommaAfter",
+        };
+        private static readonly string[] DimCommaAfter = DimIdentifierAfter;
+        private static readonly string[] ClassStartAfter = new[]
+        {
+            "NextLine", "ClassIdentifier",
+        };
+        private static readonly string[] ClassIdentifierAfter = new[]
+        {
+            "NextLine", "LineComment", "ClassIdentifier",
+        };
+        private static readonly string[] FunctionStartAfter = new[]
+        {
+            "NextLine", "FunctionName",
+        };
+        private static readonly string[] FunctionNameAfter = new[]
+        {
+            "NextLine", "LineComment", "FunctionArg",
+        };
+        private static readonly string[] FunctionArgAfter = new[]
+        {
+            "NextLine", "LineComment", "FunctionComma",
+        };
+        private static readonly string[] FunctionCommaAfter = FunctionNameAfter;
 
-        private static readonly string ReturnAfter = Pre + NextLine + Or + LineComment + Or + Number + Or + Identifier + Or + ExprScopeStart + Or + PreIncrement + Or + Literal + Or + OneOpe;
-        private static readonly string IfStartAfter = Pre + NextLine + Or + Number + Or + Identifier + Or + ExprScopeStart + Or + PreIncrement + Or + OneOpe;
-        private static readonly string SelectStartAfter = IfStartAfter;
-        private static readonly string SelectCaseAfter = Pre + NextLine + Or + SelectCaseNumber + Or + SelectCaseLiteral;
-        private static readonly string ForStartAfter = Pre + NextLine + Or + Identifier;
-        private static readonly string WhileStartAfter = IfStartAfter;
-        private static readonly string DoLoopEndAfter = IfStartAfter;
-        private static readonly string TryAfter = Pre + Function + Or + Identifier + Or + PreIncrement;
+        private static readonly string[] ReturnAfter = new[]
+        {
+            "NextLine", "LineComment", "Number", "Identifier", "ExprStart", "PreIncrement", "Literal", "OneOpe",
+        };
+        private static readonly string[] SifStartAfter = new[]
+        {
+            "NextLine", "Number", "Identifier", "ExprStart", "PreIncrement", "OneOpe",
+        };
+        private static readonly string[] IfStartAfter = SifStartAfter;
+        private static readonly string[] SelectStartAfter = SifStartAfter;
+        private static readonly string[] SelectCaseAfter = new[]
+        {
+            "NextLine", "SelectCaseNumber", "SelectCaseLiteral",
+        };
+        private static readonly string[] ForStartAfter = new[]
+        {
+            "NextLine", "Identifier",
+        };
+        private static readonly string[] WhileStartAfter = SifStartAfter;
+        private static readonly string[] DoLoopEndAfter = SifStartAfter;
+        private static readonly string[] TryAfter = new[]
+        {
+            "Function", "Identifier", "PreIncrement",
+        };
 
-        private static readonly string NumberAfter = Pre + NextLine + Or + LineComment + Or + ExprScopeEnd + Or + IndexEnd + Or + Comma + Or + BinOpe;
-        private static readonly string FunctionAfter = Pre + NextLine + Or + Number + Or + Identifier + Or + ExprScopeStart + Or + ExprScopeEnd + Or + PreIncrement + Or + Literal + Or + OneOpe;
-        private static readonly string IdentifierAfter = Pre + NextLine + Or + LineComment + Or + ExprScopeEnd + Or + IndexStart + Or + IndexEnd + Or + Comma + Or + Asign + Or + BinOpe;
-        private static readonly string ExprScopeStartAfter = FunctionAfter;
-        private static readonly string ExprScopeEndAfter = NumberAfter;
-        private static readonly string CommaAfter = FunctionAfter;
-        private static readonly string IndexStartAfter = FunctionAfter;
-        private static readonly string IndexEndAfter = IdentifierAfter;
-        private static readonly string LiteralAfter = NumberAfter;
-        private static readonly string PreIncrementAfter = Pre + NextLine + Or + Number + Or + Identifier + Or + ExprScopeStart;
-        private static readonly string AsignAfter = Pre + NextLine + Or + Number + Or + Identifier + Or + ExprScopeStart + Or + Literal;
-        private static readonly string BinOpeAfter = AsignAfter;
-        private static readonly string OneOpeAfter = PreIncrementAfter;
+        private static readonly string[] NumberAfter = new[]
+        {
+            "NextLine", "LineComment", "ExprEnd", "IndexEnd", "Comma", "BinOpe", "TernaryStart", "TernaryDelimiter", 
+        };
+        private static readonly string[] FunctionAfter = new[]
+        {
+            "NextLine", "Number", "Identifier", "ExprStart", "ExprEnd", "PreIncrement", "Literal", "OneOpe",
+        };
+        private static readonly string[] IdentifierAfter = new[]
+        {
+            "NextLine", "LineComment", "ExprEnd", "IndexStart", "IndexEnd", "Comma", "Asign", "BinOpe", "TernaryStart", "TernaryDelimiter",
+        };
+        private static readonly string[] ExprStartAfter = FunctionAfter;
+        private static readonly string[] ExprEndAfter = NumberAfter;
+        private static readonly string[] CommaAfter = FunctionAfter;
+        private static readonly string[] IndexStartAfter = FunctionAfter;
+        private static readonly string[] IndexEndAfter = IdentifierAfter;
+        private static readonly string[] LiteralAfter = NumberAfter;
+        private static readonly string[] PreIncrementAfter = new[]
+        {
+            "NextLine", "Number", "Identifier", "ExprStart", "TernaryDelimiter",
+        };
+        private static readonly string[] AsignAfter = new[]
+        {
+            "NextLine", "Number", "Identifier", "ExprStart", "PreIncrement", "Literal", "OneOpe", "TernaryDelimiter",
+        };
+        private static readonly string[] BinOpeAfter = AsignAfter;
+        private static readonly string[] OneOpeAfter = PreIncrementAfter;
+        private static readonly string[] TernaryStartAfter = AsignAfter;
+        private static readonly string[] TernaryDelimiterAfter = AsignAfter;
+
+        private static readonly string[] LineCommentOnly = new [] { "LineComment" };
+        private static readonly string[] BlockSkip = new[] { "BlockCommentEnd", "BlockCommentSkip" };
 
         // パターン設定構造体
         private struct PatternSetting
         {
-            public string NextPattern = null;
-            public bool IsTerminal = false;
-            public bool IsAbsoluteTerminal = false;
-            public PatternSetting(string pattern, bool isTerminal, bool isAbsoluteTerminal = false)
+            public string NextPattern { get; private set; }
+            public string[] PatternNames { get; private set; }
+            public bool IsTerminal { get; private set; }
+            public bool IsAbsoluteTerminal { get; private set; }
+            public PatternSetting(string[] patternNames, bool isTerminal, bool isAbsoluteTerminal = false)
             {
-                NextPattern = pattern;
+                PatternNames = patternNames;
                 IsTerminal = isTerminal;
                 IsAbsoluteTerminal = isAbsoluteTerminal;
+                NextPattern = @"";
+
+                bool isFirst = true;
+                foreach (string patternName in patternNames)
+                {
+                    NextPattern += (isFirst) ? @"^" : @"|";
+                    NextPattern += patternRegexes[patternName];
+                    isFirst = false;
+                }
             }
         }
 
@@ -137,8 +217,7 @@ namespace eratter
             { "First", new PatternSetting(FirstPattern, true) },
 
             { "DimStart", new PatternSetting(DimStartAfter, false) },
-            { "DimGlobal", new PatternSetting(DimGlobalAfter, false) },
-            { "DimSaveData", new PatternSetting(DimSaveDataAfter, false) },
+            { "DimSave", new PatternSetting(DimSaveAfter, false) },
             { "DimIdentifier", new PatternSetting(DimIdentifierAfter, true) },
             { "DimHash", new PatternSetting(DimHashAfter, false) },
             { "DimNumber", new PatternSetting(DimNumberAfter, true) },
@@ -150,32 +229,33 @@ namespace eratter
             { "FunctionArg", new PatternSetting(FunctionArgAfter, true) },
             { "FunctionComma", new PatternSetting(FunctionCommaAfter, false) },
 
-            { "NextLine", new PatternSetting(null, true, true) },
+            { "NextLine", new PatternSetting(LineCommentOnly, true, true) },
             { "Return", new PatternSetting(ReturnAfter, true) },
+            { "Sif", new PatternSetting(SifStartAfter, false) },
             { "IfStart", new PatternSetting(IfStartAfter, false) },
-            { "IfEnd", new PatternSetting(null, true, true) },
+            { "IfEnd", new PatternSetting(LineCommentOnly, true, true) },
             { "SelectStart", new PatternSetting(SelectStartAfter, false) },
             { "SelectCase", new PatternSetting(SelectCaseAfter, false) },
-            { "SelectCaseNumber", new PatternSetting(null, true, true) },
-            { "SelectCaseLiteral", new PatternSetting(null, true, true) },
-            { "SelectDefault", new PatternSetting(null, true, true) },
-            { "SelectEnd", new PatternSetting(null, true, true) },
+            { "SelectCaseNumber", new PatternSetting(LineCommentOnly, true, true) },
+            { "SelectCaseLiteral", new PatternSetting(LineCommentOnly, true, true) },
+            { "SelectDefault", new PatternSetting(LineCommentOnly, true, true) },
+            { "SelectEnd", new PatternSetting(LineCommentOnly, true, true) },
             { "ForStart", new PatternSetting(ForStartAfter, false) },
-            { "ForEnd", new PatternSetting(null, true, true) },
+            { "ForEnd", new PatternSetting(LineCommentOnly, true, true) },
             { "WhileStart", new PatternSetting(WhileStartAfter, false) },
-            { "WhileEnd", new PatternSetting(null, true, true) },
-            { "DoLoopStart", new PatternSetting(null, true, true) },
+            { "WhileEnd", new PatternSetting(LineCommentOnly, true, true) },
+            { "DoLoopStart", new PatternSetting(LineCommentOnly, true, true) },
             { "DoLoopEnd", new PatternSetting(DoLoopEndAfter, false) },
-            { "Break", new PatternSetting(null, true, true) },
+            { "Break", new PatternSetting(LineCommentOnly, true, true) },
             { "Try", new PatternSetting(TryAfter, true, true) },
-            { "Catch", new PatternSetting(null, true, true) },
-            { "CatchEnd", new PatternSetting(null, true, true) },
+            { "Catch", new PatternSetting(LineCommentOnly, true, true) },
+            { "CatchEnd", new PatternSetting(LineCommentOnly, true, true) },
 
             { "Number", new PatternSetting(NumberAfter, true) },
             { "Function", new PatternSetting(FunctionAfter, false) },
             { "Identifier", new PatternSetting(IdentifierAfter, true) },
-            { "ExprScopeStart", new PatternSetting(ExprScopeStartAfter, false) },
-            { "ExprScopeEnd", new PatternSetting(ExprScopeEndAfter, true) },
+            { "ExprStart", new PatternSetting(ExprStartAfter, false) },
+            { "ExprEnd", new PatternSetting(ExprEndAfter, true) },
             { "Comma", new PatternSetting(CommaAfter, false) },
             { "IndexStart", new PatternSetting(IndexStartAfter, false) },
             { "IndexEnd", new PatternSetting(IndexEndAfter, true) },
@@ -184,40 +264,204 @@ namespace eratter
             { "Asign", new PatternSetting(AsignAfter, false) },
             { "BinOpe", new PatternSetting(BinOpeAfter, false) },
             { "OneOpe", new PatternSetting(OneOpeAfter, false) },
+            { "TernaryStart", new PatternSetting(TernaryStartAfter, true) },
+            { "TernaryDelimiter", new PatternSetting(TernaryDelimiterAfter, true) },
+
             { "LineComment", new PatternSetting(null, true) },
-            { "BlockCommentStart", new PatternSetting(null, true) },
-            { "BlockCommentEnd", new PatternSetting(null, true, true) },
+            { "BlockCommentStart", new PatternSetting(BlockSkip, true) },
+            { "BlockCommentSkip", new PatternSetting(BlockSkip, true) },
+            { "BlockCommentEnd", new PatternSetting(LineCommentOnly, true, true) },
+            
+            { "NextCommentCheck", new PatternSetting(null, false)},
         };
 
+        // トークン構造体
+        private struct Token
+        {
+            public string Name { get; private set; }
+            public string Data { get; private set; }
+            public int Priority { get; private set; }
+
+            public Token(string name, string data, int priority)
+            {
+                Name = name;
+                Data = data;
+                Priority = priority;
+            }
+        }
+
         private static PatternSetting scanSetting = Patterns["First"];
-        private static string nextPattern = FirstPattern;
         private static List<int> priorities = new List<int>();
         private static bool isTerminal = false;
         private static bool isAbsoluteTerminal = false;
         private static List<Token> stacks = new List<Token>();
-//        private static List<Command> commands = new List<Command>();
+        private static List<string> brackets = new List<string>();
+        private static List<string> scopes = new List<string>();
+        private static List<bool> ternarys = new List<bool>();
+        private static readonly int BracketAddPriority = 100;
+        private static bool isContinueLine = false;
+        private static bool isInBlockComment = false;
+
+        //        private static List<Command> commands = new List<Command>();
 
         public static Token ScanScript(string script)
         {
-            return null;
+            return new Token();
         }
 
-        public static List<Token> ScanLine(string str)
+        public static void ScanLine(string str, int defaultPriority)
         {
-            List<Token> tokens = new List<Token>();
-            string strCopy = (str.Trim() + "\n").Replace("\\\\", "&yen;");
-            PatternSetting? nextSetting = null;
-            int exprScopeNum = 0;
-            int indexNum = 0;
+            string temp = (str.Trim() + "\n").Replace("\\\\", "&yen;");
+            isContinueLine = false;
 
-            while (strCopy != "")
+            while (temp != "")
             {
                 int matchLength = 0;
-                Match m = Regex.Match(strCopy, scanSetting.NextPattern);
+                Match m = Regex.Match(temp, scanSetting.NextPattern);
 
                 if (m.Success)
                 {
+                    string name = null;
+                    string value = null;
+                    foreach (string patternName in scanSetting.PatternNames)
+                    {
+                        if (m.Groups[patternName].Value != "")
+                        {
+                            name = patternName;
+                            value = m.Groups[name].Value;
+                            break;
+                        }
+                    }
 
+                    // ラインコメント開始なら後ろは見ない
+                    if (name == "LineComment")
+                    {
+                        temp = "";
+                    }
+                    else
+                    {
+                        temp = temp.Substring(value.Length).TrimStart();
+                        switch (name)
+                        {
+                            case "NextLine":
+                                isContinueLine = true;
+                                break;
+                            case "IfStart":
+                            case "SelectStart":
+                            case "ForStart":
+                            case "WhileStart":
+                            case "DoLoopStart":
+                            case "Try":
+                            case "LocalScopeStart":
+                                scopes.Add(name);
+                                stacks.Add(new Token(name, value, defaultPriority));
+                                break;
+                            case "IfEnd":
+                            case "SelectEnd":
+                            case "ForEnd":
+                            case "DoLoopEnd":
+                            case "CatchEnd":
+                            case "LocalScopeEnd":
+                                RemoveLastScope(name);
+                                stacks.Add(new Token(name, value, defaultPriority));
+                                break;
+                            case "Catch":
+                                RemoveLastScope(name);
+                                scopes.Add(name);
+                                stacks.Add(new Token(name, value, defaultPriority));
+                                break;
+                            case "SelectCase":
+                            case "SelectDefault":
+                                InvalidLastScopeAssert("SelectStart");
+                                stacks.Add(new Token(name, value, defaultPriority));
+                                break;
+                            case "Break":
+                                {
+                                    bool isEnableBreak = false;
+                                    foreach (string scope in scopes)
+                                    {
+                                        if (scope != "Try")
+                                        {
+                                            isEnableBreak = true;
+                                            break;
+                                        }
+                                    }
+                                    // 予期しないエラー
+                                    if (!isEnableBreak)
+                                        Error.Exception("todo");
+                                    stacks.Add(new Token(name, value, defaultPriority));
+                                }
+                                break;
+                            case "ExprStart":
+                            case "IndexStart":
+                            case "Function":
+                                brackets.Add(name);
+                                stacks.Add(new Token(name, value, defaultPriority + BracketPriority));
+                                defaultPriority += BracketAddPriority;
+                                break;
+                            case "ExprEnd":
+                            case "IndexEnd":
+                                RemoveLastBracket(name);
+                                defaultPriority -= BracketAddPriority;
+                                stacks.Add(new Token(name, value, defaultPriority));
+                                break;
+                            case "Comma":
+                                // 予期しないエラー
+                                if ((stacks[0].Name != "FunctionStart") &&
+                                    (stacks[0].Name != "DimStart") &&
+                                    (brackets[brackets.Count - 1] != "Function"))
+                                    Error.Exception("todo");
+                                stacks.Add(new Token(name, value, defaultPriority));
+                                break;
+                            case "PreIncrement":
+                                stacks.Add(new Token(name, value, PreIncrementPriority + defaultPriority));
+                                break;
+                            case "BinOpe":
+                                stacks.Add(new Token(name, value, BinOpePriorities[value] + defaultPriority));
+                                break;
+                            case "OneOpe":
+                                stacks.Add(new Token(name, value, OneOpePriorities[value] + defaultPriority));
+                                break;
+                            case "TernaryStart":
+                                brackets.Add(name);
+                                stacks.Add(new Token(name, value, defaultPriority));
+                                defaultPriority += BracketAddPriority;
+                                break;
+                            case "TernaryDelimiter":
+                                if (brackets[brackets.Count - 1] == "TernaryStart")
+                                {
+                                    RemoveLastBracket(name);
+                                    brackets.Add(name);
+                                    stacks.Add(new Token(name, value, defaultPriority));
+                                }
+                                else if (brackets[brackets.Count - 1] == "TernaryDelimiter")
+                                {
+                                    defaultPriority -= BracketAddPriority;
+                                    brackets.RemoveAt(brackets.Count - 1);
+                                    RemoveLastBracket(name);
+                                    brackets.Add(name);
+                                    stacks.Add(new Token(name, value, defaultPriority));
+                                }
+                                else
+                                {
+                                    // 予期しないエラー
+                                }
+                            case "BlockCommentStart":
+                                isInBlockComment = true;
+                                break;
+                            case "BlockCommentEnd":
+                                // 予期しないエラー
+                                if (!isInBlockComment)
+                                    Error.Exception("todo");
+                                isInBlockComment = false;
+                                break;
+                            default:
+                                stacks.Add(new Token(name, value, defaultPriority));
+                                break;
+                        }
+
+                    }
+                    scanSetting = Patterns[name];
                 }
                 else
                 {
@@ -225,29 +469,97 @@ namespace eratter
                     break;
                 }
 
-                // Nextパターンがnullだったらループを抜ける
-                if (!nextSetting.HasValue)
+                // Nextパターンがnullだったら残りはコメントなのでループを抜ける
+                if (scanSetting.PatternNames == null)
+                {
+                    temp = "";
                     break;
-
-                scanSetting = nextSetting.Value;
-                strCopy = strCopy.Substring(0, matchLength).TrimStart();
+                }
             }
 
-            // 行の体を為していないため、解釈エラー
-            if (((strCopy != "") && (scanSetting.IsAbsoluteTerminal)) ||
-                ((strCopy == "") && (!scanSetting.IsTerminal)))
-                Error.Exception("todo");
+            // 行のルールが成立していないため、解釈エラー
+            if (!isContinueLine && !isInBlockComment)
+            {
+                // 三項演算子が終わっていない場合があるので
+                for (int i = brackets.Count - 1; i >= 0; ++i)
+                {
+                    if (brackets[i] == "TernaryDelimiter")
+                    {
+                        defaultPriority -= BracketAddPriority;
+                        brackets.RemoveAt(i);
+                    }
+                }
 
-            // 括弧の数があっていないため、解釈エラー
-            if ((exprScopeNum > 0) || (indexNum > 0))
-                Error.Exception("todo");
+                // 完全終端記号で終わっていない、非終端記号で終わっている
+                if (((temp != "") && (scanSetting.IsAbsoluteTerminal)) ||
+                    ((temp == "") && (!scanSetting.IsTerminal)))
+                    Error.Exception("todo");
 
-            return (tokens.Count > 0) ? tokens : null;
+                // 括弧の数があっていないため、解釈エラー
+                if (brackets.Count > 0)
+                    Error.Exception("todo");
+            }
+
+            if (!isContinueLine)
+                scanSetting = Patterns["First"];
+
+            return;
         }
 
         public static Token Parse()
         {
-            return null;
+            return new Token();
+        }
+
+        private static void InvalidLastScopeAssert(string scope)
+        {
+            // 予期しないエラー
+            if ((scopes.Count == 0) || (scopes[scopes.Count - 1] != scope))
+                Error.Exception("todo");
+        }
+
+        private static void RemoveLastScope(string endToken)
+        {
+            Dictionary<string, string> endToStart = new Dictionary<string, string>
+            {
+                { "IfEnd",         "IfStart"         },
+                { "SelectEnd",     "SelectStart"     },
+                { "ForEnd",        "ForStart"        },
+                { "WhileEnd",      "WhileStart"      },
+                { "DoLoopEnd",     "DoLoopStart"     },
+                { "Catch",         "Try"             },
+                { "CatchEnd",      "Catch"           },
+                { "LocalScopeEnd", "LocalScopeStart" },
+            };
+            InvalidLastScopeAssert(endToStart[endToken]);
+            brackets.RemoveAt(scopes.Count - 1);
+        }
+
+        private static void InvalidLastBracketAssert(string[] checkBrackets)
+        {
+            bool isInvalid = true;
+            foreach (string bracket in checkBrackets)
+            {
+                if (brackets[brackets.Count - 1] == bracket)
+                {
+                    isInvalid = false;
+                    break;
+                }
+            }
+
+            if (isInvalid)
+                Error.Exception("todo");
+        }
+
+        private static void RemoveLastBracket(string endToken)
+        {
+            Dictionary<string, string[]> endToStart = new Dictionary<string, string[]>
+            {
+                { "ExprEnd",          new [] { "ExprStart", "FunctionStart" } },
+                { "IndexEnd",         new [] { "IndexStart" } },
+            };
+            InvalidLastBracketAssert(endToStart[endToken]);
+            brackets.RemoveAt(brackets.Count - 1);
         }
 
         private static void addPriority(int priority)
