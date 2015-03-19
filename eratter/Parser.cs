@@ -61,7 +61,7 @@ namespace eratter
             {"Asign", @"(?<Asign>\<\<=|\>\>=|\^=|\|=|\&=|\%=|\/=|\*=|\-=|\=)"},
             {"AsignPlus", @"(?<AsignPlus>\+=)"},
             {"BinOpe", @"(?<BinOpe>==|\!=|\<=|\>=|\<<|\>>|\|\||\&\&|\||\^|\&|\~|\>|\<|\-|\*|\/|\%)"},
-            {"BinOpePlus", @"(?<BinOpe>\+)"},
+            {"BinOpePlus", @"(?<BinOpePlus>\+)"},
             {"OneOpe", @"(?<OneOpe>\+|\-|\!)"},
             {"TernaryStart", @"(?<Ternary>\?)"},
             {"TernaryDelimiter", @"(?<TernaryDelimiter>\:)"},
