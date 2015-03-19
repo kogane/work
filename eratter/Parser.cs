@@ -437,7 +437,8 @@ namespace eratter
                                 stacks.Add(createToken(name, value, BinOpePriorities[value] + defaultPriority));
                                 break;
                             case "OneOpe":
-                                stacks.Add(createToken(name, value, OneOpePriorities[value] + defaultPriority));
+                                if (value != "+")
+                                    stacks.Add(createToken(name, value, OneOpePriorities[value] + defaultPriority));
                                 break;
                             case "TernaryStart":
                                 brackets.Add(name);
