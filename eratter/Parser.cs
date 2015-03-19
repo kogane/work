@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using eratter.Tokens;
 
 namespace eratter
 {
@@ -289,26 +290,10 @@ namespace eratter
         };
         private static readonly int AsignPriority = 0;
 
-        // トークン構造体
-        private struct Token
-        {
-            public string Name { get; private set; }
-            public string Data { get; private set; }
-            public int Priority { get; private set; }
-
-            public Token(string name, string data, int priority)
-            {
-                Name = name;
-                Data = data;
-                Priority = priority;
-            }
-        }
-
         private static PatternSetting scanSetting = Patterns["First"];
-        private static List<int> priorities = new List<int>();
         private static bool isTerminal = false;
         private static bool isAbsoluteTerminal = false;
-        private static List<Token> stacks = new List<Token>();
+        private static List<Unparse> stacks = new List<Unparse>();
         private static List<string> brackets = new List<string>();
         private static List<string> scopes = new List<string>();
         private static List<bool> ternarys = new List<bool>();
@@ -318,9 +303,9 @@ namespace eratter
 
         //        private static List<Command> commands = new List<Command>();
 
-        public static Token ScanScript(string script)
+        public static TokenBase ScanScript(string script)
         {
-            return new Token();
+            return new TokenBase();
         }
 
         public static void ScanLine(string str, int defaultPriority)
@@ -330,7 +315,6 @@ namespace eratter
 
             while (temp != "")
             {
-                int matchLength = 0;
                 Match m = Regex.Match(temp, scanSetting.NextPattern);
 
                 if (m.Success)
@@ -368,7 +352,7 @@ namespace eratter
                             case "Try":
                             case "LocalScopeStart":
                                 scopes.Add(name);
-                                stacks.Add(createToken(name, value, defaultPriority));
+                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "IfEnd":
                             case "SelectEnd":
@@ -377,17 +361,17 @@ namespace eratter
                             case "CatchEnd":
                             case "LocalScopeEnd":
                                 RemoveLastScope(name);
-                                stacks.Add(createToken(name, value, defaultPriority));
+                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "Catch":
                                 RemoveLastScope(name);
                                 scopes.Add(name);
-                                stacks.Add(createToken(name, value, defaultPriority));
+                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "SelectCase":
                             case "SelectDefault":
                                 InvalidLastScopeAssert("SelectStart");
-                                stacks.Add(createToken(name, value, defaultPriority));
+                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "Break":
                                 {
@@ -403,21 +387,21 @@ namespace eratter
                                     // 予期しないエラー
                                     if (!isEnableBreak)
                                         Error.Exception("todo");
-                                    stacks.Add(createToken(name, value, defaultPriority));
+                                    stacks.Add(new Unparse(name, value, defaultPriority));
                                 }
                                 break;
                             case "ExprStart":
                             case "IndexStart":
                             case "Function":
                                 brackets.Add(name);
-                                stacks.Add(createToken(name, value, defaultPriority));
+                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 defaultPriority += BracketAddPriority;
                                 break;
                             case "ExprEnd":
                             case "IndexEnd":
                                 RemoveLastBracket(name);
                                 defaultPriority -= BracketAddPriority;
-                                stacks.Add(createToken(name, value, defaultPriority));
+                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "Comma":
                                 // 予期しないエラー
@@ -425,24 +409,24 @@ namespace eratter
                                     (stacks[0].Name != "DimStart") &&
                                     (brackets[brackets.Count - 1] != "Function"))
                                     Error.Exception("todo");
-                                stacks.Add(createToken(name, value, defaultPriority));
+                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "Asign":
-                                stacks.Add(createToken(name, value, AsignPriority + defaultPriority));
+                                stacks.Add(new Unparse(name, value, AsignPriority + defaultPriority));
                                 break;
                             case "PreIncrement":
-                                stacks.Add(createToken(name, value, OneOpePriority + defaultPriority));
+                                stacks.Add(new Unparse(name, value, OneOpePriority + defaultPriority));
                                 break;
                             case "BinOpe":
-                                stacks.Add(createToken(name, value, BinOpePriorities[value] + defaultPriority));
+                                stacks.Add(new Unparse(name, value, BinOpePriorities[value] + defaultPriority));
                                 break;
                             case "OneOpe":
                                 if (value != "+")
-                                    stacks.Add(createToken(name, value, OneOpePriority + defaultPriority));
+                                    stacks.Add(new Unparse(name, value, OneOpePriority + defaultPriority));
                                 break;
                             case "TernaryStart":
                                 brackets.Add(name);
-                                stacks.Add(createToken(name, value, defaultPriority));
+                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 defaultPriority += BracketAddPriority;
                                 break;
                             case "TernaryDelimiter":
@@ -450,7 +434,7 @@ namespace eratter
                                 {
                                     RemoveLastBracket(name);
                                     brackets.Add(name);
-                                    stacks.Add(createToken(name, value, defaultPriority));
+                                    stacks.Add(new Unparse(name, value, defaultPriority));
                                 }
                                 else if (brackets[brackets.Count - 1] == "TernaryDelimiter")
                                 {
@@ -458,12 +442,12 @@ namespace eratter
                                     brackets.RemoveAt(brackets.Count - 1);
                                     RemoveLastBracket(name);
                                     brackets.Add(name);
-                                    stacks.Add(createToken(name, value, defaultPriority));
+                                    stacks.Add(new Unparse(name, value, defaultPriority));
                                 }
+                                // 予期しないエラー
                                 else
-                                {
-                                    // 予期しないエラー
-                                }
+                                    Error.Exception("todo");
+                                break;
                             case "BlockCommentStart":
                                 isInBlockComment = true;
                                 break;
@@ -476,8 +460,10 @@ namespace eratter
                             case "SelectCaseLiteral":
                             case "Literal":
                                 substringLength += "\"\"".Length;
+                                stacks.Add(new Unparse(name, value, defaultPriority));
+                                break;
                             default:
-                                stacks.Add(createToken(name, value, defaultPriority));
+                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                         }
                         // マッチした文字列の切り取り
@@ -528,9 +514,9 @@ namespace eratter
             return;
         }
 
-        public static Token Parse()
+        public static TokenBase Parse()
         {
-            return new Token();
+            return new TokenBase();
         }
 
         private static void InvalidLastScopeAssert(string scope)
@@ -582,16 +568,6 @@ namespace eratter
             };
             InvalidLastBracketAssert(endToStart[endToken]);
             brackets.RemoveAt(brackets.Count - 1);
-        }
-
-        private static Token createToken(string name, string data, int priority)
-        {
-            Token result = new Token(name, data, priority);
-
-            if (!priorities.Contains(priority))
-                priorities.Add(priority);
-
-            return result;
         }
     }
 }
