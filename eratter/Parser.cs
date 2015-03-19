@@ -396,7 +396,7 @@ namespace eratter
                             case "IndexStart":
                             case "Function":
                                 brackets.Add(name);
-                                stacks.Add(createToken(name, value, defaultPriority + BracketPriority));
+                                stacks.Add(createToken(name, value, defaultPriority));
                                 defaultPriority += BracketAddPriority;
                                 break;
                             case "ExprEnd":
