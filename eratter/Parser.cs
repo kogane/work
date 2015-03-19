@@ -173,11 +173,11 @@ namespace eratter
         private static readonly string[] LiteralAfter = NumberAfter;
         private static readonly string[] PreIncrementAfter = new[]
         {
-            "NextLine", "Number", "Identifier", "ExprStart", "TernaryDelimiter",
+            "NextLine", "Number", "Identifier", "ExprStart",
         };
         private static readonly string[] AsignAfter = new[]
         {
-            "NextLine", "Number", "Identifier", "ExprStart", "PreIncrement", "Literal", "OneOpe", "TernaryDelimiter",
+            "NextLine", "Number", "Identifier", "ExprStart", "PreIncrement", "Literal", "OneOpe",
         };
         private static readonly string[] BinOpeAfter = AsignAfter;
         private static readonly string[] OneOpeAfter = PreIncrementAfter;
