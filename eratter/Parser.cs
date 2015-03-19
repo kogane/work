@@ -12,64 +12,64 @@ namespace eratter
         // 正規表現定義
         private static readonly Dictionary<string, string> patternRegexes = new Dictionary<string, string>
         {
-            {"DimStart", @"((?<DimStart>#dim(|s|f))\s)"},
-            {"DimClassStart", @"((?<DimClassStart>#dimc)\s)"},
-            {"DimSave", @"((?<DimSave>global|savedata)\s)"},
-            {"DimIdentifier", @"(?<DimIdentifier>\w+)"},
-            {"DimHash", @"((?<DimHash>array|hash)\s)"},
-            {"DimNumber", @"(?<DimNumber>[0-9]+)"},
-            {"DimComma", @"(?<DimComma>,)"},
-            {"ClassStart", @"((?<ClassStart>#class)\s)"},
-            {"ClassIdentifier", @"(?<ClassIdentifier>\w+)"},
-            {"FunctionStart", @"((?<FunctionStart>sub)\s)"},
-            {"FunctionName", @"(?<FunctionName>\w+)"},
-            {"FunctionArg", @"(?<FunctionArg>\w+)"},
-            {"FunctionComma", @"(?<FunctionComma>,)"},
+            { "DimStart",          @"((?<DimStart>#dim(|s|f))\s)" },
+            { "DimClassStart",     @"((?<DimClassStart>#dimc)\s)" },
+            { "DimSave",           @"((?<DimSave>global|savedata)\s)" },
+            { "DimIdentifier",     @"(?<DimIdentifier>\w+)" },
+            { "DimHash",           @"((?<DimHash>array|hash)\s)" },
+            { "DimNumber",         @"(?<DimNumber>[0-9]+)" },
+            { "DimComma",          @"(?<DimComma>,)" },
+            { "ClassStart",        @"((?<ClassStart>#class)\s)" },
+            { "ClassIdentifier",   @"(?<ClassIdentifier>\w+)" },
+            { "FunctionStart",     @"((?<FunctionStart>sub)\s)" },
+            { "FunctionName",      @"(?<FunctionName>\w+)" },
+            { "FunctionArg",       @"(?<FunctionArg>\w+)" },
+            { "FunctionComma",     @"(?<FunctionComma>,)" },
 
-            {"NextLine", @"(?<NextLine>\\)"},
-            {"Return", @"((?<Return>return)\s)"},
-            {"Sif", @"((?<Sif>sif)\s)"},
-            {"IfStart", @"((?<IfStart>if)\s)"},
-            {"IfEnd", @"((?<IfEnd>endif)\s)"},
-            {"SelectStart", @"((?<SelectStart>selectcase)\s)"},
-            {"SelectCase", @"((?<SelectCase>case)\s)"},
-            {"SelectCaseNumber", @"(?<SelectCaseNumber>[0-9]+)"},
-            {"SelectCaseLiteral", @"(""(?<SelectCaseLiteral>.*?)(?<!\\)"")"},
-            {"SelectDefault", @"((?<SelectDefault>default)\s)"},
-            {"SelectEnd", @"((?<SelectEnd>endselect)\s)"},
-            {"ForStart", @"((?<ForStart>for)\s)"},
-            {"ForEnd", @"((?<ForEnd>next)\s)"},
-            {"WhileStart", @"((?<WhileStart>while)\s)"},
-            {"WhileEnd", @"((?<WhileEnd>wend)\s)"},
-            {"DoLoopStart", @"((?<DoLoopStart>do)\s)"},
-            {"DoLoopEnd", @"((?<DoLoopEnd>loop)\s)"},
-            {"Break", @"((?<Break>break)\s)"},
-            {"Try", @"((?<Try>try)\s)"},
-            {"Catch", @"((?<Catch>catch)\s)"},
-            {"CatchEnd", @"((?<CatchEnd>endcatch)\s)"},
+            { "NextLine",          @"(?<NextLine>\\)" },
+            { "Return",            @"((?<Return>return)\s)" },
+            { "Sif",               @"((?<Sif>sif)\s)" },
+            { "IfStart",           @"((?<IfStart>if)\s)" },
+            { "IfEnd",             @"((?<IfEnd>endif)\s)" },
+            { "SelectStart",       @"((?<SelectStart>selectcase)\s)" },
+            { "SelectCase",        @"((?<SelectCase>case)\s)" },
+            { "SelectCaseNumber",  @"(?<SelectCaseNumber>[0-9]+)" },
+            { "SelectCaseLiteral", @"(""(?<SelectCaseLiteral>.*?)(?<!\\)"")" },
+            { "SelectDefault",     @"((?<SelectDefault>default)\s)" },
+            { "SelectEnd",         @"((?<SelectEnd>endselect)\s)" },
+            { "ForStart",          @"((?<ForStart>for)\s)" },
+            { "ForEnd",            @"((?<ForEnd>next)\s)" },
+            { "WhileStart",        @"((?<WhileStart>while)\s)" },
+            { "WhileEnd",          @"((?<WhileEnd>wend)\s)" },
+            { "DoLoopStart",       @"((?<DoLoopStart>do)\s)" },
+            { "DoLoopEnd",         @"((?<DoLoopEnd>loop)\s)" },
+            { "Break",             @"((?<Break>break)\s)" },
+            { "Try",               @"((?<Try>try)\s)" },
+            { "Catch",             @"((?<Catch>catch)\s)" },
+            { "CatchEnd",          @"((?<CatchEnd>endcatch)\s)" },
 
-            {"Number", @"(?<Number>[0-9]+)"},
-            {"Function", @"(?<Function>\w+\()"},
-            {"Identifier", @"(?<Identifier>\w+)"},
-            {"ExprStart", @"(?<ExprStart>\()"},
-            {"ExprEnd", @"(?<ExprEnd>\()"},
-            {"Comma", @"(?<Comma>,)"},
-            {"IndexStart", @"(?<IndexStart>\[)"},
-            {"IndexEnd", @"(?<IndexEnd>\])"},
-            {"Literal", @"(""(?<Literal>.*?)(?<!\\)"")"},
-            {"PreIncrement", @"(?<PreIncrement>\+\+|\-\-)"},
-            {"Asign", @"(?<Asign>\<\<=|\>\>=|\^=|\|=|\&=|\%=|\/=|\*=|\-=|\+=|\=)"},
-            {"BinOpe", @"(?<BinOpe>==|\!=|\<=|\>=|\<<|\>>|\|\||\&\&|\||\^|\&|\~|\>|\<|\+|\-|\*|\/|\%)"},
-            {"OneOpe", @"(?<OneOpe>\+|\-|\!)"},
-            {"TernaryStart", @"(?<Ternary>\?)"},
-            {"TernaryDelimiter", @"(?<TernaryDelimiter>\:)"},
+            { "Number",            @"(?<Number>[0-9]+)" },
+            { "Function",          @"(?<Function>\w+\()" },
+            { "Identifier",        @"(?<Identifier>\w+)" },
+            { "ExprStart",         @"(?<ExprStart>\()" },
+            { "ExprEnd",           @"(?<ExprEnd>\()" },
+            { "Comma",             @"(?<Comma>,)" },
+            { "IndexStart",        @"(?<IndexStart>\[)" },
+            { "IndexEnd",          @"(?<IndexEnd>\])" },
+            { "Literal",           @"(""(?<Literal>.*?)(?<!\\)"")" },
+            { "PreIncrement",      @"(?<PreIncrement>\+\+|\-\-)" },
+            { "Asign",             @"(?<Asign>\<\<=|\>\>=|\^=|\|=|\&=|\%=|\/=|\*=|\-=|\+=|\=)" },
+            { "BinOpe",            @"(?<BinOpe>==|\!=|\<=|\>=|\<<|\>>|\|\||\&\&|\||\^|\&|\>|\<|\+|\-|\*|\/|\%)" },
+            { "OneOpe",            @"(?<OneOpe>\+|\-|\!)" },
+            { "TernaryStart",      @"(?<Ternary>\?)" },
+            { "TernaryDelimiter",  @"(?<TernaryDelimiter>\:)" },
 
-            {"LineComment", @"(?<LineComment>;|\/\/)"},
-            {"BlockCommentStart", @"(?<BlockCommentStart>\/\*)"},
-            {"BlockCommentSkip", @"(?<BlockCommentSkip>.*)"},
-            {"BlockCommentEnd", @"(?<BlockCommentEnd>\*\/)"},
-            {"LocalScopeStart", @"(?<LocalScopeStart>\{)"},
-            {"LocalScopeEnd", @"(?<LocalScopeEnd>\})"},
+            { "LineComment",       @"(?<LineComment>;|\/\/)" },
+            { "BlockCommentStart", @"(?<BlockCommentStart>\/\*)" },
+            { "BlockCommentSkip",  @"(?<BlockCommentSkip>.*)" },
+            { "BlockCommentEnd",   @"(?<BlockCommentEnd>\*\/)" },
+            { "LocalScopeStart",   @"(?<LocalScopeStart>\{)" },
+            { "LocalScopeEnd",     @"(?<LocalScopeEnd>\})" },
         };
 
         // ネクストパターン定義
@@ -275,6 +275,20 @@ namespace eratter
             { "NextCommentCheck", new PatternSetting(null, false)},
         };
 
+        // 演算子のプライオリティ
+        private static readonly int OneOpePriority = 50;
+        private static readonly Dictionary<string, int> BinOpePriorities = new Dictionary<string, int>
+        {
+            { "*",  29 }, { "/",  29 }, { "%",  29 },
+            { "+",  28 }, { "-",  28 },
+            { "<<", 27 }, { ">>", 27 },
+            { "<=", 26 }, { ">=", 26 }, { "<",  26 }, { ">",  26 },
+            { "==", 25 }, { "!=", 25 },
+            { "&",  24 }, { "|",  23 }, { "^",  22 },
+            { "&&", 21 }, { "||", 20 },
+        };
+        private static readonly int AsignPriority = 0;
+
         // トークン構造体
         private struct Token
         {
@@ -413,15 +427,18 @@ namespace eratter
                                     Error.Exception("todo");
                                 stacks.Add(createToken(name, value, defaultPriority));
                                 break;
+                            case "Asign":
+                                stacks.Add(createToken(name, value, AsignPriority + defaultPriority));
+                                break;
                             case "PreIncrement":
-                                stacks.Add(createToken(name, value, PreIncrementPriority + defaultPriority));
+                                stacks.Add(createToken(name, value, OneOpePriority + defaultPriority));
                                 break;
                             case "BinOpe":
                                 stacks.Add(createToken(name, value, BinOpePriorities[value] + defaultPriority));
                                 break;
                             case "OneOpe":
                                 if (value != "+")
-                                    stacks.Add(createToken(name, value, OneOpePriorities[value] + defaultPriority));
+                                    stacks.Add(createToken(name, value, OneOpePriority + defaultPriority));
                                 break;
                             case "TernaryStart":
                                 brackets.Add(name);
