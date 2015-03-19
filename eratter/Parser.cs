@@ -58,8 +58,10 @@ namespace eratter
             {"IndexEnd", @"(?<IndexEnd>\])"},
             {"Literal", @"(""(?<Literal>.*?)(?<!\\)"")"},
             {"PreIncrement", @"(?<PreIncrement>\+\+|\-\-)"},
-            {"Asign", @"(?<Asign>\<\<=|\>\>=|\^=|\|=|\&=|\%=|\/=|\*=|\-=|\+=|\=)"},
-            {"BinOpe", @"(?<BinOpe>==|\!=|\<=|\>=|\<<|\>>|\|\||\&\&|\||\^|\&|\~|\>|\<|\+|\-|\*|\/|\%)"},
+            {"Asign", @"(?<Asign>\<\<=|\>\>=|\^=|\|=|\&=|\%=|\/=|\*=|\-=|\=)"},
+            {"AsignPlus", @"(?<AsignPlus>\+=)"},
+            {"BinOpe", @"(?<BinOpe>==|\!=|\<=|\>=|\<<|\>>|\|\||\&\&|\||\^|\&|\~|\>|\<|\-|\*|\/|\%)"},
+            {"BinOpePlus", @"(?<BinOpe>\+)"},
             {"OneOpe", @"(?<OneOpe>\+|\-|\!)"},
             {"TernaryStart", @"(?<Ternary>\?)"},
             {"TernaryDelimiter", @"(?<TernaryDelimiter>\:)"},
@@ -155,7 +157,7 @@ namespace eratter
 
         private static readonly string[] NumberAfter = new[]
         {
-            "NextLine", "LineComment", "ExprEnd", "IndexEnd", "Comma", "BinOpe", "TernaryStart", "TernaryDelimiter", 
+            "NextLine", "LineComment", "ExprEnd", "IndexEnd", "Comma", "BinOpe", "BinOpePlus", "TernaryStart", "TernaryDelimiter", 
         };
         private static readonly string[] FunctionAfter = new[]
         {
@@ -163,23 +165,31 @@ namespace eratter
         };
         private static readonly string[] IdentifierAfter = new[]
         {
-            "NextLine", "LineComment", "ExprEnd", "IndexStart", "IndexEnd", "Comma", "Asign", "BinOpe", "TernaryStart", "TernaryDelimiter",
+            "NextLine", "LineComment", "ExprEnd", "IndexStart", "IndexEnd", "Comma", "Asign", "AsignPlus", "BinOpe", "BinOpePlus", "TernaryStart", "TernaryDelimiter",
         };
         private static readonly string[] ExprStartAfter = FunctionAfter;
         private static readonly string[] ExprEndAfter = NumberAfter;
         private static readonly string[] CommaAfter = FunctionAfter;
         private static readonly string[] IndexStartAfter = FunctionAfter;
         private static readonly string[] IndexEndAfter = IdentifierAfter;
-        private static readonly string[] LiteralAfter = NumberAfter;
+        private static readonly string[] LiteralAfter = new[]
+        {
+            "NextLine", "LineComment", "ExprEnd", "IndexEnd", "Comma", "BinOpePlus", "TernaryStart", "TernaryDelimiter", 
+        };
         private static readonly string[] PreIncrementAfter = new[]
         {
-            "NextLine", "Number", "Identifier", "ExprStart", "TernaryDelimiter",
+            "NextLine", "Number", "Identifier", "ExprStart",
         };
         private static readonly string[] AsignAfter = new[]
         {
-            "NextLine", "Number", "Identifier", "ExprStart", "PreIncrement", "Literal", "OneOpe", "TernaryDelimiter",
+            "NextLine", "Number", "Identifier", "ExprStart", "PreIncrement", "OneOpe"
+        };
+        private static readonly string[] AsignPlusAfter = new[]
+        {
+            "NextLine", "Number", "Identifier", "ExprStart", "PreIncrement", "Literal", "OneOpe"
         };
         private static readonly string[] BinOpeAfter = AsignAfter;
+        private static readonly string[] BinOpePlusAfter = AsignPlusAfter;
         private static readonly string[] OneOpeAfter = PreIncrementAfter;
         private static readonly string[] TernaryStartAfter = AsignAfter;
         private static readonly string[] TernaryDelimiterAfter = AsignAfter;
@@ -262,7 +272,9 @@ namespace eratter
             { "Literal", new PatternSetting(LiteralAfter, false) },
             { "PreIncrement", new PatternSetting(PreIncrementAfter, false) },
             { "Asign", new PatternSetting(AsignAfter, false) },
+            { "AsignPlus", new PatternSetting(AsignPlusAfter, false) },
             { "BinOpe", new PatternSetting(BinOpeAfter, false) },
+            { "BinOpePlus", new PatternSetting(BinOpePlusAfter, false) },
             { "OneOpe", new PatternSetting(OneOpeAfter, false) },
             { "TernaryStart", new PatternSetting(TernaryStartAfter, true) },
             { "TernaryDelimiter", new PatternSetting(TernaryDelimiterAfter, true) },
@@ -340,7 +352,7 @@ namespace eratter
                     }
                     else
                     {
-                        temp = temp.Substring(value.Length).TrimStart();
+                        int substringLength = value.Length;
                         switch (name)
                         {
                             case "NextLine":
@@ -354,7 +366,7 @@ namespace eratter
                             case "Try":
                             case "LocalScopeStart":
                                 scopes.Add(name);
-                                stacks.Add(new Token(name, value, defaultPriority));
+                                stacks.Add(createToken(name, value, defaultPriority));
                                 break;
                             case "IfEnd":
                             case "SelectEnd":
@@ -363,17 +375,17 @@ namespace eratter
                             case "CatchEnd":
                             case "LocalScopeEnd":
                                 RemoveLastScope(name);
-                                stacks.Add(new Token(name, value, defaultPriority));
+                                stacks.Add(createToken(name, value, defaultPriority));
                                 break;
                             case "Catch":
                                 RemoveLastScope(name);
                                 scopes.Add(name);
-                                stacks.Add(new Token(name, value, defaultPriority));
+                                stacks.Add(createToken(name, value, defaultPriority));
                                 break;
                             case "SelectCase":
                             case "SelectDefault":
                                 InvalidLastScopeAssert("SelectStart");
-                                stacks.Add(new Token(name, value, defaultPriority));
+                                stacks.Add(createToken(name, value, defaultPriority));
                                 break;
                             case "Break":
                                 {
@@ -389,21 +401,21 @@ namespace eratter
                                     // 予期しないエラー
                                     if (!isEnableBreak)
                                         Error.Exception("todo");
-                                    stacks.Add(new Token(name, value, defaultPriority));
+                                    stacks.Add(createToken(name, value, defaultPriority));
                                 }
                                 break;
                             case "ExprStart":
                             case "IndexStart":
                             case "Function":
                                 brackets.Add(name);
-                                stacks.Add(new Token(name, value, defaultPriority + BracketPriority));
+                                stacks.Add(createToken(name, value, defaultPriority + BracketPriority));
                                 defaultPriority += BracketAddPriority;
                                 break;
                             case "ExprEnd":
                             case "IndexEnd":
                                 RemoveLastBracket(name);
                                 defaultPriority -= BracketAddPriority;
-                                stacks.Add(new Token(name, value, defaultPriority));
+                                stacks.Add(createToken(name, value, defaultPriority));
                                 break;
                             case "Comma":
                                 // 予期しないエラー
@@ -411,20 +423,25 @@ namespace eratter
                                     (stacks[0].Name != "DimStart") &&
                                     (brackets[brackets.Count - 1] != "Function"))
                                     Error.Exception("todo");
-                                stacks.Add(new Token(name, value, defaultPriority));
+                                stacks.Add(createToken(name, value, defaultPriority));
                                 break;
                             case "PreIncrement":
-                                stacks.Add(new Token(name, value, PreIncrementPriority + defaultPriority));
+                                stacks.Add(createToken(name, value, PreIncrementPriority + defaultPriority));
+                                break;
+                            case "Asign":
+                            case "AsignPlus":
+                                stacks.Add(createToken(name, value, AsignPriority + defaultPriority));
                                 break;
                             case "BinOpe":
-                                stacks.Add(new Token(name, value, BinOpePriorities[value] + defaultPriority));
+                            case "BinOpePlus":
+                                stacks.Add(createToken(name, value, BinOpePriorities[value] + defaultPriority));
                                 break;
                             case "OneOpe":
-                                stacks.Add(new Token(name, value, OneOpePriorities[value] + defaultPriority));
+                                stacks.Add(createToken(name, value, OneOpePriorities[value] + defaultPriority));
                                 break;
                             case "TernaryStart":
                                 brackets.Add(name);
-                                stacks.Add(new Token(name, value, defaultPriority));
+                                stacks.Add(createToken(name, value, defaultPriority));
                                 defaultPriority += BracketAddPriority;
                                 break;
                             case "TernaryDelimiter":
@@ -432,7 +449,7 @@ namespace eratter
                                 {
                                     RemoveLastBracket(name);
                                     brackets.Add(name);
-                                    stacks.Add(new Token(name, value, defaultPriority));
+                                    stacks.Add(createToken(name, value, defaultPriority));
                                 }
                                 else if (brackets[brackets.Count - 1] == "TernaryDelimiter")
                                 {
@@ -440,7 +457,7 @@ namespace eratter
                                     brackets.RemoveAt(brackets.Count - 1);
                                     RemoveLastBracket(name);
                                     brackets.Add(name);
-                                    stacks.Add(new Token(name, value, defaultPriority));
+                                    stacks.Add(createToken(name, value, defaultPriority));
                                 }
                                 else
                                 {
@@ -455,11 +472,15 @@ namespace eratter
                                     Error.Exception("todo");
                                 isInBlockComment = false;
                                 break;
+                            case "SelectCaseLiteral":
+                            case "Literal":
+                                substringLength += "\"\"".Length;
                             default:
-                                stacks.Add(new Token(name, value, defaultPriority));
+                                stacks.Add(createToken(name, value, defaultPriority));
                                 break;
                         }
-
+                        // マッチした文字列の切り取り
+                        temp = temp.Substring(substringLength, temp.Length - substringLength).TrimStart();
                     }
                     scanSetting = Patterns[name];
                 }
@@ -562,10 +583,14 @@ namespace eratter
             brackets.RemoveAt(brackets.Count - 1);
         }
 
-        private static void addPriority(int priority)
+        private static Token createToken(string name, string data, int priority)
         {
+            Token result = new Token(name, data, priority);
+
             if (!priorities.Contains(priority))
                 priorities.Add(priority);
+
+            return result;
         }
     }
 }
