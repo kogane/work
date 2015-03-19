@@ -217,63 +217,63 @@ namespace eratter
         {
             { "First", new PatternSetting(FirstPattern, true) },
 
-            { "DimStart", new PatternSetting(DimStartAfter, false) },
-            { "DimSave", new PatternSetting(DimSaveAfter, false) },
-            { "DimIdentifier", new PatternSetting(DimIdentifierAfter, true) },
-            { "DimHash", new PatternSetting(DimHashAfter, false) },
-            { "DimNumber", new PatternSetting(DimNumberAfter, true) },
-            { "DimComma", new PatternSetting(DimCommaAfter, false) },
-            { "ClassStart", new PatternSetting(ClassStartAfter, false) },
-            { "ClassIdentifier", new PatternSetting(ClassIdentifierAfter, true) },
-            { "FunctionStart", new PatternSetting(FunctionStartAfter, true) },
-            { "FunctionName", new PatternSetting(FunctionNameAfter, true) },
-            { "FunctionArg", new PatternSetting(FunctionArgAfter, true) },
-            { "FunctionComma", new PatternSetting(FunctionCommaAfter, false) },
+            { "DimStart",          new PatternSetting(DimStartAfter, false) },
+            { "DimSave",           new PatternSetting(DimSaveAfter, false) },
+            { "DimIdentifier",     new PatternSetting(DimIdentifierAfter, true) },
+            { "DimHash",           new PatternSetting(DimHashAfter, false) },
+            { "DimNumber",         new PatternSetting(DimNumberAfter, true) },
+            { "DimComma",          new PatternSetting(DimCommaAfter, false) },
+            { "ClassStart",        new PatternSetting(ClassStartAfter, false) },
+            { "ClassIdentifier",   new PatternSetting(ClassIdentifierAfter, true) },
+            { "FunctionStart",     new PatternSetting(FunctionStartAfter, true) },
+            { "FunctionName",      new PatternSetting(FunctionNameAfter, true) },
+            { "FunctionArg",       new PatternSetting(FunctionArgAfter, true) },
+            { "FunctionComma",     new PatternSetting(FunctionCommaAfter, false) },
 
-            { "NextLine", new PatternSetting(LineCommentOnly, true, true) },
-            { "Return", new PatternSetting(ReturnAfter, true) },
-            { "Sif", new PatternSetting(SifStartAfter, false) },
-            { "IfStart", new PatternSetting(IfStartAfter, false) },
-            { "IfEnd", new PatternSetting(LineCommentOnly, true, true) },
-            { "SelectStart", new PatternSetting(SelectStartAfter, false) },
-            { "SelectCase", new PatternSetting(SelectCaseAfter, false) },
-            { "SelectCaseNumber", new PatternSetting(LineCommentOnly, true, true) },
+            { "NextLine",          new PatternSetting(LineCommentOnly, true, true) },
+            { "Return",            new PatternSetting(ReturnAfter, true) },
+            { "Sif",               new PatternSetting(SifStartAfter, false) },
+            { "IfStart",           new PatternSetting(IfStartAfter, false) },
+            { "IfEnd",             new PatternSetting(LineCommentOnly, true, true) },
+            { "SelectStart",       new PatternSetting(SelectStartAfter, false) },
+            { "SelectCase",        new PatternSetting(SelectCaseAfter, false) },
+            { "SelectCaseNumber",  new PatternSetting(LineCommentOnly, true, true) },
             { "SelectCaseLiteral", new PatternSetting(LineCommentOnly, true, true) },
-            { "SelectDefault", new PatternSetting(LineCommentOnly, true, true) },
-            { "SelectEnd", new PatternSetting(LineCommentOnly, true, true) },
-            { "ForStart", new PatternSetting(ForStartAfter, false) },
-            { "ForEnd", new PatternSetting(LineCommentOnly, true, true) },
-            { "WhileStart", new PatternSetting(WhileStartAfter, false) },
-            { "WhileEnd", new PatternSetting(LineCommentOnly, true, true) },
-            { "DoLoopStart", new PatternSetting(LineCommentOnly, true, true) },
-            { "DoLoopEnd", new PatternSetting(DoLoopEndAfter, false) },
-            { "Break", new PatternSetting(LineCommentOnly, true, true) },
-            { "Try", new PatternSetting(TryAfter, true, true) },
-            { "Catch", new PatternSetting(LineCommentOnly, true, true) },
-            { "CatchEnd", new PatternSetting(LineCommentOnly, true, true) },
+            { "SelectDefault",     new PatternSetting(LineCommentOnly, true, true) },
+            { "SelectEnd",         new PatternSetting(LineCommentOnly, true, true) },
+            { "ForStart",          new PatternSetting(ForStartAfter, false) },
+            { "ForEnd",            new PatternSetting(LineCommentOnly, true, true) },
+            { "WhileStart",        new PatternSetting(WhileStartAfter, false) },
+            { "WhileEnd",          new PatternSetting(LineCommentOnly, true, true) },
+            { "DoLoopStart",       new PatternSetting(LineCommentOnly, true, true) },
+            { "DoLoopEnd",         new PatternSetting(DoLoopEndAfter, false) },
+            { "Break",             new PatternSetting(LineCommentOnly, true, true) },
+            { "Try",               new PatternSetting(TryAfter, true, true) },
+            { "Catch",             new PatternSetting(LineCommentOnly, true, true) },
+            { "CatchEnd",          new PatternSetting(LineCommentOnly, true, true) },
 
-            { "Number", new PatternSetting(NumberAfter, true) },
-            { "Function", new PatternSetting(FunctionAfter, false) },
-            { "Identifier", new PatternSetting(IdentifierAfter, true) },
-            { "ExprStart", new PatternSetting(ExprStartAfter, false) },
-            { "ExprEnd", new PatternSetting(ExprEndAfter, true) },
-            { "Comma", new PatternSetting(CommaAfter, false) },
-            { "IndexStart", new PatternSetting(IndexStartAfter, false) },
-            { "IndexEnd", new PatternSetting(IndexEndAfter, true) },
-            { "Literal", new PatternSetting(LiteralAfter, false) },
-            { "PreIncrement", new PatternSetting(PreIncrementAfter, false) },
-            { "Asign", new PatternSetting(AsignAfter, false) },
-            { "BinOpe", new PatternSetting(BinOpeAfter, false) },
-            { "OneOpe", new PatternSetting(OneOpeAfter, false) },
-            { "TernaryStart", new PatternSetting(TernaryStartAfter, true) },
-            { "TernaryDelimiter", new PatternSetting(TernaryDelimiterAfter, true) },
+            { "Number",            new PatternSetting(NumberAfter, true) },
+            { "Function",          new PatternSetting(FunctionAfter, false) },
+            { "Identifier",        new PatternSetting(IdentifierAfter, true) },
+            { "ExprStart",         new PatternSetting(ExprStartAfter, false) },
+            { "ExprEnd",           new PatternSetting(ExprEndAfter, true) },
+            { "Comma",             new PatternSetting(CommaAfter, false) },
+            { "IndexStart",        new PatternSetting(IndexStartAfter, false) },
+            { "IndexEnd",          new PatternSetting(IndexEndAfter, true) },
+            { "Literal",           new PatternSetting(LiteralAfter, false) },
+            { "PreIncrement",      new PatternSetting(PreIncrementAfter, false) },
+            { "Asign",             new PatternSetting(AsignAfter, false) },
+            { "BinOpe",            new PatternSetting(BinOpeAfter, false) },
+            { "OneOpe",            new PatternSetting(OneOpeAfter, false) },
+            { "TernaryStart",      new PatternSetting(TernaryStartAfter, true) },
+            { "TernaryDelimiter",  new PatternSetting(TernaryDelimiterAfter, true) },
 
-            { "LineComment", new PatternSetting(null, true) },
+            { "LineComment",       new PatternSetting(null, true) },
             { "BlockCommentStart", new PatternSetting(BlockSkip, true) },
-            { "BlockCommentSkip", new PatternSetting(BlockSkip, true) },
-            { "BlockCommentEnd", new PatternSetting(LineCommentOnly, true, true) },
+            { "BlockCommentSkip",  new PatternSetting(BlockSkip, true) },
+            { "BlockCommentEnd",   new PatternSetting(LineCommentOnly, true, true) },
             
-            { "NextCommentCheck", new PatternSetting(null, false)},
+            { "NextCommentCheck",  new PatternSetting(null, false)},
         };
 
         // 演算子のプライオリティ
@@ -291,9 +291,7 @@ namespace eratter
         private static readonly int AsignPriority = 0;
 
         private static PatternSetting scanSetting = Patterns["First"];
-        private static bool isTerminal = false;
-        private static bool isAbsoluteTerminal = false;
-        private static List<Unparse> stacks = new List<Unparse>();
+        private static List<TokenBase> stacks = new List<TokenBase>();
         private static List<string> brackets = new List<string>();
         private static List<string> scopes = new List<string>();
         private static List<bool> ternarys = new List<bool>();
@@ -305,7 +303,7 @@ namespace eratter
 
         public static TokenBase ScanScript(string script)
         {
-            return new TokenBase();
+            return null;
         }
 
         public static void ScanLine(string str, int defaultPriority)
@@ -338,6 +336,7 @@ namespace eratter
                     }
                     else
                     {
+                        int setPriority = defaultPriority;
                         int substringLength = value.Length;
                         switch (name)
                         {
@@ -352,7 +351,6 @@ namespace eratter
                             case "Try":
                             case "LocalScopeStart":
                                 scopes.Add(name);
-                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "IfEnd":
                             case "SelectEnd":
@@ -361,17 +359,14 @@ namespace eratter
                             case "CatchEnd":
                             case "LocalScopeEnd":
                                 RemoveLastScope(name);
-                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "Catch":
                                 RemoveLastScope(name);
                                 scopes.Add(name);
-                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "SelectCase":
                             case "SelectDefault":
                                 InvalidLastScopeAssert("SelectStart");
-                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "Break":
                                 {
@@ -387,21 +382,19 @@ namespace eratter
                                     // 予期しないエラー
                                     if (!isEnableBreak)
                                         Error.Exception("todo");
-                                    stacks.Add(new Unparse(name, value, defaultPriority));
                                 }
                                 break;
                             case "ExprStart":
                             case "IndexStart":
                             case "Function":
                                 brackets.Add(name);
-                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 defaultPriority += BracketAddPriority;
                                 break;
                             case "ExprEnd":
                             case "IndexEnd":
                                 RemoveLastBracket(name);
                                 defaultPriority -= BracketAddPriority;
-                                stacks.Add(new Unparse(name, value, defaultPriority));
+                                setPriority = defaultPriority;
                                 break;
                             case "Comma":
                                 // 予期しないエラー
@@ -409,24 +402,19 @@ namespace eratter
                                     (stacks[0].Name != "DimStart") &&
                                     (brackets[brackets.Count - 1] != "Function"))
                                     Error.Exception("todo");
-                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             case "Asign":
-                                stacks.Add(new Unparse(name, value, AsignPriority + defaultPriority));
+                                setPriority += AsignPriority;
                                 break;
                             case "PreIncrement":
-                                stacks.Add(new Unparse(name, value, OneOpePriority + defaultPriority));
+                            case "OneOpe":
+                                setPriority += OneOpePriority;
                                 break;
                             case "BinOpe":
-                                stacks.Add(new Unparse(name, value, BinOpePriorities[value] + defaultPriority));
-                                break;
-                            case "OneOpe":
-                                if (value != "+")
-                                    stacks.Add(new Unparse(name, value, OneOpePriority + defaultPriority));
+                                setPriority += BinOpePriorities[value];
                                 break;
                             case "TernaryStart":
                                 brackets.Add(name);
-                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 defaultPriority += BracketAddPriority;
                                 break;
                             case "TernaryDelimiter":
@@ -434,7 +422,6 @@ namespace eratter
                                 {
                                     RemoveLastBracket(name);
                                     brackets.Add(name);
-                                    stacks.Add(new Unparse(name, value, defaultPriority));
                                 }
                                 else if (brackets[brackets.Count - 1] == "TernaryDelimiter")
                                 {
@@ -442,7 +429,6 @@ namespace eratter
                                     brackets.RemoveAt(brackets.Count - 1);
                                     RemoveLastBracket(name);
                                     brackets.Add(name);
-                                    stacks.Add(new Unparse(name, value, defaultPriority));
                                 }
                                 // 予期しないエラー
                                 else
@@ -460,12 +446,12 @@ namespace eratter
                             case "SelectCaseLiteral":
                             case "Literal":
                                 substringLength += "\"\"".Length;
-                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                             default:
-                                stacks.Add(new Unparse(name, value, defaultPriority));
                                 break;
                         }
+                        // スタックに詰む
+                        stackingToken(name, value, defaultPriority);
                         // マッチした文字列の切り取り
                         temp = temp.Substring(substringLength, temp.Length - substringLength).TrimStart();
                     }
@@ -516,7 +502,7 @@ namespace eratter
 
         public static TokenBase Parse()
         {
-            return new TokenBase();
+            return null;
         }
 
         private static void InvalidLastScopeAssert(string scope)
@@ -568,6 +554,19 @@ namespace eratter
             };
             InvalidLastBracketAssert(endToStart[endToken]);
             brackets.RemoveAt(brackets.Count - 1);
+        }
+
+        private static void stackingToken(string name, string data, int priority)
+        {
+            TokenBase token = null;
+            switch (name)
+            {
+                default:
+                    break;
+            }
+
+            if (token != null)
+                stacks.Add(token.Init(name, data, priority));
         }
     }
 }
